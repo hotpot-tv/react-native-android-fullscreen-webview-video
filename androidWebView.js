@@ -164,6 +164,7 @@ class WebView extends React.Component {
     allowUniversalAccessFromFileURLs: PropTypes.bool,
 
     /**
+     * List of origin strings to allow being navigated to. The strings allow
      * wildcards and get matched against *just* the origin (not the full URL).
      * If the user taps to navigate to a new page but the new page is not in
      * this whitelist, the URL will be opened by the Android OS.
