@@ -14,6 +14,7 @@ const ReactNative = require('react-native');
 const React = require('react');
 const PropTypes = require('prop-types');
 const keyMirror = require('fbjs/lib/keyMirror');
+const WebViewShared = require('WebViewShared');
 const EdgeInsetsPropType = ReactNative.EdgeInsetsPropType;
 const ActivityIndicator = ReactNative.ActivityIndicator;
 const StyleSheet = ReactNative.StyleSheet;
@@ -163,6 +164,14 @@ class WebView extends React.Component {
     allowUniversalAccessFromFileURLs: PropTypes.bool,
 
     /**
+     * wildcards and get matched against *just* the origin (not the full URL).
+     * If the user taps to navigate to a new page but the new page is not in
+     * this whitelist, the URL will be opened by the Android OS.
+     * The default whitelisted origins are 'http://*' and 'https://*'.
+     */
+    originWhitelist: PropTypes.arrayOf(PropTypes.string),
+
+    /**
      * Function that accepts a string that will be passed to the WebView and
      * executed immediately as JavaScript.
      */
@@ -220,7 +229,8 @@ class WebView extends React.Component {
     javaScriptEnabled: true,
     thirdPartyCookiesEnabled: true,
     scalesPageToFit: true,
-    saveFormDataDisabled: false
+    saveFormDataDisabled: false,
+    originWhitelist: WebViewShared.defaultOriginWhitelist
   };
 
   state = {
@@ -281,6 +291,10 @@ class WebView extends React.Component {
 
     const nativeConfig = this.props.nativeConfig || {};
 
+    const originWhitelist = (this.props.originWhitelist || []).map(
+      WebViewShared.originWhitelistToRegex
+    );
+
     let NativeWebView = nativeConfig.component || RCTWebView;
 
     const webView = (
@@ -312,6 +326,7 @@ class WebView extends React.Component {
         allowUniversalAccessFromFileURLs={
           this.props.allowUniversalAccessFromFileURLs
         }
+        originWhitelist={originWhitelist}
         mixedContentMode={this.props.mixedContentMode}
         saveFormDataDisabled={this.props.saveFormDataDisabled}
         urlPrefixesForDefaultIntent={this.props.urlPrefixesForDefaultIntent}
